@@ -12,14 +12,15 @@ const Home: NextPage = () => {
   const [walletConnected, setWalletConnected] = useState(false);
   const [joinedWhiteList, setJoinedWhiteList] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [numOfWhiteListed, setNumOfWhiteListed] = useState(1);
+  const [numOfWhiteListed, setNumOfWhiteListed] = useState(0);
 
   const web3ModalRef = useRef();
 
   // used to get a Web3 provider or signer
   const getProviderOrSigner = async (needSigner = false) => {
-    // @ts-ignore
-    const provider: providers.ExternalProvider = web3ModalRef.current.connect();
+    const provider: providers.ExternalProvider =
+      // @ts-ignore
+      await web3ModalRef.current.connect();
     const web3Provider = new providers.Web3Provider(provider);
     const { chainId } = await web3Provider.getNetwork();
     if (chainId !== 4) {
@@ -35,17 +36,22 @@ const Home: NextPage = () => {
 
   //add the address to the whitelist
   const addAddressToWhiteList = async () => {
-    const signer = await getProviderOrSigner(true);
-    const whiteListContract = new Contract(
-      WHITELIST_CONTRACT_ADDRESS,
-      abi,
-      signer
-    );
-    const txn = await whiteListContract.addAddressToWhitelist();
-    setLoading(true);
-    await txn.wait();
-    setLoading(false);
-    await getNumberOfWhitelisted();
+    try {
+      const signer = await getProviderOrSigner(true);
+      const whiteListContract = new Contract(
+        WHITELIST_CONTRACT_ADDRESS,
+        abi,
+        signer
+      );
+      const txn = await whiteListContract.addAddressToWhitelist();
+      setLoading(true);
+      await txn.wait();
+      setLoading(false);
+      await getNumberOfWhitelisted();
+      setJoinedWhiteList(true);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // get the number of addresses in the whitelist
@@ -82,7 +88,42 @@ const Home: NextPage = () => {
       );
       setJoinedWhiteList(_joinedWhiteList);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+    }
+  };
+
+  // connect to Metamask Wallet
+  const connectWallet = async () => {
+    try {
+      await getProviderOrSigner(true);
+      setWalletConnected(true);
+      checkIfAddressInWhitelist();
+      getNumberOfWhitelisted();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // render the button
+  const renderButton = () => {
+    if (walletConnected) {
+      if (joinedWhiteList) {
+        return <div className={styles.description}>Thanks for joining</div>;
+      } else if (loading) {
+        return <button className={styles.button}>Loading...</button>;
+      } else {
+        return (
+          <button className={styles.button} onClick={addAddressToWhiteList}>
+            Join the Whitelist
+          </button>
+        );
+      }
+    } else {
+      return (
+        <button className={styles.button} onClick={connectWallet}>
+          Connect Wallet
+        </button>
+      );
     }
   };
 
@@ -94,8 +135,9 @@ const Home: NextPage = () => {
         providerOptions: {},
         disableInjectedProvider: false,
       });
-      // connectWallet();
+      connectWallet();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [walletConnected]);
 
   // the page structure
@@ -123,7 +165,7 @@ const Home: NextPage = () => {
               </div>
             )}
           </div>
-          {/* {renderButton()} */}
+          {renderButton()}
         </div>
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
