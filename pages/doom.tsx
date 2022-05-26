@@ -5,6 +5,7 @@ import { providers, Contract } from "ethers";
 import { useEffect, useRef, useState } from "react";
 import { WHITELIST_CONTRACT_ADDRESS, abi } from "../constants";
 import { NextPage } from "next";
+import Image from "next/image";
 
 const Home: NextPage = () => {
   // walletConnected keep track of whether the user's wallet is connected or not
@@ -217,10 +218,12 @@ const Home: NextPage = () => {
         </div>
         <div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             alt="Crypto Devs"
             className={styles.image}
-            src="./crypto-devs.svg"
+            src="/sushi.jpg"
+            width="100"
+            height="100"
           />
         </div>
       </div>
