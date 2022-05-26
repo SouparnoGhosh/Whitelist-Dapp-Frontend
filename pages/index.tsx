@@ -33,6 +33,29 @@ const Home: NextPage = () => {
     return web3Provider;
   };
 
+  // get the number of addresses in the whitelist
+  const getNumberOfWhitelisted = async () => {
+    try {
+      const provider = await getProviderOrSigner();
+      // @ts-ignore
+      const whiteListContract = new Contract(
+        WHITELIST_CONTRACT_ADDRESS,
+        abi,
+        provider
+      );
+      const _numAddressesWhitelisted =
+        await whiteListContract.numAddressesWhitelisted();
+      setNumOfWhiteListed(_numAddressesWhitelisted);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // check if address is in whitelist
+  const checkIfAddressInWhitelist = async () => {
+    const signer = await getProviderOrSigner(true);
+  };
+
   useEffect(() => {
     if (!walletConnected) {
       // @ts-ignore
@@ -41,7 +64,7 @@ const Home: NextPage = () => {
         providerOptions: {},
         disableInjectedProvider: false,
       });
-      setWalletConnected(true);
+      // connectWallet();
     }
   }, [walletConnected]);
 
