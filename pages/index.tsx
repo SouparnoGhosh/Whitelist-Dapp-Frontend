@@ -53,7 +53,22 @@ const Home: NextPage = () => {
 
   // check if address is in whitelist
   const checkIfAddressInWhitelist = async () => {
-    const signer = await getProviderOrSigner(true);
+    try {
+      const signer = await getProviderOrSigner(true);
+      // @ts-ignore
+      const _address = await signer.getAddress();
+      const whiteListContract = new Contract(
+        WHITELIST_CONTRACT_ADDRESS,
+        abi,
+        signer
+      );
+      const _joinedWhiteList = await whiteListContract.whitelistedAddresses(
+        _address
+      );
+      setJoinedWhiteList(_joinedWhiteList);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
