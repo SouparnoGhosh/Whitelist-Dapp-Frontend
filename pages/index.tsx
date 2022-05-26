@@ -33,6 +33,21 @@ const Home: NextPage = () => {
     return web3Provider;
   };
 
+  //add the address to the whitelist
+  const addAddressToWhiteList = async () => {
+    const signer = await getProviderOrSigner(true);
+    const whiteListContract = new Contract(
+      WHITELIST_CONTRACT_ADDRESS,
+      abi,
+      signer
+    );
+    const txn = await whiteListContract.addAddressToWhitelist();
+    setLoading(true);
+    await txn.wait();
+    setLoading(false);
+    await getNumberOfWhitelisted();
+  };
+
   // get the number of addresses in the whitelist
   const getNumberOfWhitelisted = async () => {
     try {
