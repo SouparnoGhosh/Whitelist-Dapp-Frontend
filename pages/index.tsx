@@ -16,6 +16,7 @@ const Home: NextPage = () => {
 
   const web3ModalRef = useRef();
 
+  // used to get a Web3 provider or signer
   const getProviderOrSigner = async (needSigner = false) => {
     // @ts-ignore
     const provider: providers.ExternalProvider = web3ModalRef.current.connect();
@@ -31,6 +32,18 @@ const Home: NextPage = () => {
     }
     return web3Provider;
   };
+
+  useEffect(() => {
+    if (!walletConnected) {
+      // @ts-ignore
+      web3ModalRef.current = new Web3Modal({
+        network: "rinkeby",
+        providerOptions: {},
+        disableInjectedProvider: false,
+      });
+      setWalletConnected(true);
+    }
+  }, [walletConnected]);
 
   // the page structure
   return (
